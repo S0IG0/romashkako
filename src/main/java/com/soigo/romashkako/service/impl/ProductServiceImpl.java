@@ -5,7 +5,7 @@ import com.soigo.romashkako.dto.request.ProductUpdateRequest;
 import com.soigo.romashkako.exception.EntityNotFoundException;
 import com.soigo.romashkako.model.Availability;
 import com.soigo.romashkako.model.Product;
-import com.soigo.romashkako.repository.ProductLocalRepository;
+import com.soigo.romashkako.repository.ProductRepository;
 import com.soigo.romashkako.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -17,7 +17,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
-    private final ProductLocalRepository productRepository;
+    private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
     private final Availability defaultAvailability = Availability.OUT_OF_STOCK;
     private final BigDecimal defaultPrice = BigDecimal.ZERO;
@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product findById(Long id) {
         checkProductExists(id);
-        return productRepository.findById(id);
+        return productRepository.findById(id).orElseThrow();
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ProductServiceImpl implements ProductService {
     public Product update(Long id, ProductUpdateRequest productRequest) {
         checkProductExists(id);
         Product product = modelMapper.map(productRequest, Product.class);
-        Product productFound = productRepository.findById(id);
+        Product productFound = productRepository.findById(id).orElseThrow();
         updateProductFields(productFound, product);
         return productRepository.save(productFound);
     }

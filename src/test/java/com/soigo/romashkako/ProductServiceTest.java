@@ -5,7 +5,7 @@ import com.soigo.romashkako.dto.request.ProductUpdateRequest;
 import com.soigo.romashkako.exception.EntityNotFoundException;
 import com.soigo.romashkako.model.Availability;
 import com.soigo.romashkako.model.Product;
-import com.soigo.romashkako.repository.ProductLocalRepository;
+import com.soigo.romashkako.repository.ProductRepository;
 import com.soigo.romashkako.service.impl.ProductServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +18,7 @@ import org.modelmapper.ModelMapper;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.*;
 public class ProductServiceTest {
 
     @Mock
-    private ProductLocalRepository productRepository;
+    private ProductRepository productRepository;
 
     @Mock
     private ModelMapper modelMapper;
@@ -65,7 +66,7 @@ public class ProductServiceTest {
     @Test
     void testFindById() {
         when(productRepository.existsById(1L)).thenReturn(true);
-        when(productRepository.findById(1L)).thenReturn(product1);
+        when(productRepository.findById(1L)).thenReturn(Optional.ofNullable(product1));
 
         Product product = productService.findById(1L);
 
@@ -120,7 +121,7 @@ public class ProductServiceTest {
         updatedProduct.setAvailability(Availability.OUT_OF_STOCK);
 
         when(productRepository.existsById(1L)).thenReturn(true);
-        when(productRepository.findById(1L)).thenReturn(product1);
+        when(productRepository.findById(1L)).thenReturn(Optional.ofNullable(product1));
         when(modelMapper.map(request, Product.class)).thenReturn(updatedProduct);
         when(productRepository.save(any(Product.class))).thenReturn(updatedProduct);
 
