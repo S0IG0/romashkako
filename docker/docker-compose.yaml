@@ -1,0 +1,30 @@
+services:
+  db-postgres:
+    environment:
+      - POSTGRES_DB=romashkako
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+    image: postgres:alpine
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  romashkako:
+    environment:
+      - POSTGRES_HOST=db-postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=romashkako
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+    build:
+      context: ./../
+      dockerfile: ./docker/Dockerfile
+    depends_on:
+      - db-postgres
+    ports:
+      - "8888:8888"
+
+
+volumes:
+  postgresql-data:
