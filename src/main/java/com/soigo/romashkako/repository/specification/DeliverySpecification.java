@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeliverySpecifications {
+public class DeliverySpecification {
 
     public static Specification<Delivery> hasNameAndProductId(
             String name,

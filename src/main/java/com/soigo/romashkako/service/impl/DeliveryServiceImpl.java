@@ -5,7 +5,7 @@ import com.soigo.romashkako.dto.request.DeliveryUpdateRequest;
 import com.soigo.romashkako.exception.EntityNotFoundException;
 import com.soigo.romashkako.model.Delivery;
 import com.soigo.romashkako.repository.DeliveryRepository;
-import com.soigo.romashkako.repository.specification.DeliverySpecifications;
+import com.soigo.romashkako.repository.specification.DeliverySpecification;
 import com.soigo.romashkako.service.DeliveryService;
 import com.soigo.romashkako.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             Boolean reverse
     ) {
         Sort sort = createSort(sortBy, reverse);
-        Specification<Delivery> spec = DeliverySpecifications.hasNameAndProductId(name, productId);
+        Specification<Delivery> spec = DeliverySpecification.hasNameAndProductId(name, productId);
         return deliveryRepository.findAll(
                 spec,
                 PageRequest.of(
