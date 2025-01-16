@@ -17,7 +17,7 @@ public class SaleCreateRequest {
     @Size(max = 255)
     @NotBlank
     private String name;
-    @Min(0)
+    @Min(1)
     @NotNull
     private Long count;
     @NotNull
