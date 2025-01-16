@@ -14,10 +14,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,12 +59,15 @@ public class ProductServiceTest {
 
     @Test
     void testFindAll() {
-        when(productRepository.findAll()).thenReturn(Arrays.asList(product1, product2));
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Product> productPage = new PageImpl<>(Arrays.asList(product1, product2), pageable, 2);
 
-        List<Product> products = productService.findAll();
+        when(productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(productPage);
 
-        assertEquals(2, products.size());
-        verify(productRepository, times(1)).findAll();
+        Page<Product> products = productService.findAll(null, null, null, null, 0, 10, null, false);
+
+        assertEquals(2, products.getTotalElements());
+        verify(productRepository, times(1)).findAll(any(Specification.class), eq(pageable));
     }
 
     @Test
@@ -106,7 +113,6 @@ public class ProductServiceTest {
         verify(productRepository, times(1)).save(any(Product.class));
     }
 
-
     @Test
     void testUpdateProduct() {
         ProductUpdateRequest request = new ProductUpdateRequest();
@@ -131,7 +137,6 @@ public class ProductServiceTest {
         assertEquals("Updated Product", product.getName());
         verify(productRepository, times(1)).save(any(Product.class));
     }
-
 
     @Test
     void testDeleteProduct() {

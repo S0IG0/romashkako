@@ -3,11 +3,22 @@ package com.soigo.romashkako.service;
 import com.soigo.romashkako.dto.request.ProductCreateRequest;
 import com.soigo.romashkako.dto.request.ProductUpdateRequest;
 import com.soigo.romashkako.model.Product;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
+import java.math.BigDecimal;
+
 
 public interface ProductService {
-    List<Product> findAll();
+    Page<Product> findAll(
+            String name,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            String availability,
+            Integer page,
+            Integer size,
+            String sortBy,
+            Boolean reverse
+    );
     Product findById(Long id);
     Product create(ProductCreateRequest productRequest);
     Product update(Long id, ProductUpdateRequest productRequest);

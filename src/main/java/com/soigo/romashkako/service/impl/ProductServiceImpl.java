@@ -6,13 +6,17 @@ import com.soigo.romashkako.exception.EntityNotFoundException;
 import com.soigo.romashkako.model.Availability;
 import com.soigo.romashkako.model.Product;
 import com.soigo.romashkako.repository.ProductRepository;
+import com.soigo.romashkako.repository.specification.ProductSpecification;
 import com.soigo.romashkako.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +27,34 @@ public class ProductServiceImpl implements ProductService {
     private final BigDecimal defaultPrice = BigDecimal.ZERO;
 
     @Override
-    public List<Product> findAll() {
-        return productRepository.findAll();
+    public Page<Product> findAll(
+            String name,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            String availability,
+            Integer page,
+            Integer size,
+            String sortBy,
+            Boolean reverse
+    ) {
+        Sort sort = createSort(sortBy, reverse);
+        Availability foundAvailability = availability != null ? Availability.valueOf(availability) : null;
+
+        Specification<Product> spec = ProductSpecification.hasNameAndPriceAndAvailability(
+                name,
+                minPrice,
+                maxPrice,
+                foundAvailability
+        );
+
+        return productRepository.findAll(
+                spec,
+                PageRequest.of(
+                        page,
+                        size,
+                        sort
+                )
+        );
     }
 
     @Override
@@ -83,5 +113,13 @@ public class ProductServiceImpl implements ProductService {
         if (product.getAvailability() != null) {
             productFound.setAvailability(product.getAvailability());
         }
+    }
+
+    private Sort createSort(String sortBy, Boolean reverse) {
+        Sort sort = (sortBy != null) ? Sort.by(sortBy) : Sort.unsorted();
+        if (reverse) {
+            sort = sort.reverse();
+        }
+        return sort;
     }
 }
