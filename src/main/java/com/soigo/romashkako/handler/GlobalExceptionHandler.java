@@ -2,6 +2,7 @@ package com.soigo.romashkako.handler;
 
 import com.soigo.romashkako.dto.response.ErrorResponse;
 import com.soigo.romashkako.exception.EntityNotFoundException;
+import com.soigo.romashkako.exception.ValueLessThanZeroException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -59,6 +60,18 @@ public class GlobalExceptionHandler {
                         .uri(request.getRequestURI())
                         .message("Ошибка валидации параметров запроса")
                         .details(errors)
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(ValueLessThanZeroException.class)
+    public ResponseEntity<ErrorResponse> handleValueLessThanZeroException(ValueLessThanZeroException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ErrorResponse
+                        .builder()
+                        .uri(request.getRequestURI())
+                        .message(ex.getMessage())
+                        .details(ex.getDetails())
                         .build()
         );
     }

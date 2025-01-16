@@ -23,4 +23,5 @@ public interface ProductService {
     Product create(ProductCreateRequest productRequest);
     Product update(Long id, ProductUpdateRequest productRequest);
     void delete(Long id);
+    void adjustCount(Long id, Long count);
 }

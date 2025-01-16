@@ -2,6 +2,7 @@ package com.soigo.romashkako.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 
 import java.math.BigDecimal;
@@ -27,4 +28,8 @@ public class Product {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Availability availability;
+
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private Long count;
 }

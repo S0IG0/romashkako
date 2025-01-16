@@ -3,6 +3,7 @@ package com.soigo.romashkako.service.impl;
 import com.soigo.romashkako.dto.request.ProductCreateRequest;
 import com.soigo.romashkako.dto.request.ProductUpdateRequest;
 import com.soigo.romashkako.exception.EntityNotFoundException;
+import com.soigo.romashkako.exception.ValueLessThanZeroException;
 import com.soigo.romashkako.model.Availability;
 import com.soigo.romashkako.model.Product;
 import com.soigo.romashkako.repository.ProductRepository;
@@ -17,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -84,6 +86,27 @@ public class ProductServiceImpl implements ProductService {
         checkProductExists(id);
         productRepository.deleteById(id);
     }
+
+    @Override
+    public void adjustCount(Long id, Long count) {
+        Product product = findById(id);
+        Long oldCount = product.getCount();
+        long result = oldCount + count;
+
+        if (result < 0L) {
+            throw new ValueLessThanZeroException(
+                    "Значение кол-во продукта не может быть меньше 0",
+                    Map.of(
+                            "product.id", String.valueOf(id),
+                            "product.count", String.format("не может быть %d, значение должно быть больше 0", result)
+                    )
+            );
+        }
+
+        product.setCount(result);
+        productRepository.save(product);
+    }
+
 
     private void checkProductExists(Long id) {
         if (!productRepository.existsById(id)) {

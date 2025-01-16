@@ -1,0 +1,103 @@
+package com.soigo.romashkako.service.impl;
+
+import com.soigo.romashkako.dto.request.DeliveryCreateRequest;
+import com.soigo.romashkako.dto.request.DeliveryUpdateRequest;
+import com.soigo.romashkako.exception.EntityNotFoundException;
+import com.soigo.romashkako.model.Delivery;
+import com.soigo.romashkako.repository.DeliveryRepository;
+import com.soigo.romashkako.repository.specification.DeliverySpecifications;
+import com.soigo.romashkako.service.DeliveryService;
+import com.soigo.romashkako.service.ProductService;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class DeliveryServiceImpl implements DeliveryService {
+    private final ProductService productService;
+    private final DeliveryRepository deliveryRepository;
+    private final ModelMapper modelMapper;
+
+    @Override
+    public Page<Delivery> findAll(
+            String name,
+            Long productId,
+            Integer page,
+            Integer size,
+            String sortBy,
+            Boolean reverse
+    ) {
+        Sort sort = createSort(sortBy, reverse);
+        Specification<Delivery> spec = DeliverySpecifications.hasNameAndProductId(name, productId);
+        return deliveryRepository.findAll(
+                spec,
+                PageRequest.of(
+                        page,
+                        size,
+                        sort
+                )
+        );
+    }
+
+    @Override
+    public Delivery create(DeliveryCreateRequest deliveryCreateRequest) {
+        Delivery delivery = modelMapper.map(deliveryCreateRequest, Delivery.class);
+        // Добавляем к продукту кол-во
+        productService.adjustCount(
+                delivery.getProduct().getId(),
+                delivery.getCount()
+        );
+        return deliveryRepository.save(delivery);
+    }
+
+    @Override
+    public Delivery update(Long id, DeliveryUpdateRequest deliveryRequest) {
+        checkDeliveryExists(id);
+        Delivery deliveryNew = modelMapper.map(deliveryRequest, Delivery.class);
+        Delivery deliveryOld = deliveryRepository.findById(id).orElseThrow();
+
+        if (deliveryNew.getName() != null) {
+            deliveryOld.setName(deliveryNew.getName());
+        }
+
+        return deliveryRepository.save(deliveryOld);
+    }
+
+    @Override
+    public void delete(Long id) {
+        checkDeliveryExists(id);
+        Delivery deliveryFound = deliveryRepository.findById(id).orElseThrow();
+        // Убавляем у продукта кол-во
+        productService.adjustCount(
+                deliveryFound.getProduct().getId(),
+                -deliveryFound.getCount()
+        );
+        deliveryRepository.deleteById(id);
+    }
+
+    @Override
+    public Delivery findById(Long id) {
+        checkDeliveryExists(id);
+        return deliveryRepository.findById(id).orElseThrow();
+    }
+
+
+    private void checkDeliveryExists(Long id) {
+        if (!deliveryRepository.existsById(id)) {
+            throw new EntityNotFoundException(String.format("Поставка товара с id %s не найден", id));
+        }
+    }
+
+    private Sort createSort(String sortBy, Boolean reverse) {
+        Sort sort = (sortBy != null) ? Sort.by(sortBy) : Sort.unsorted();
+        if (reverse) {
+            sort = sort.reverse();
+        }
+        return sort;
+    }
+}
