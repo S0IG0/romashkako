@@ -1,0 +1,2 @@
+ALTER TABLE product
+    ADD COLUMN count BIGINT NOT NULL CHECK (count >= 0) DEFAULT 0;
