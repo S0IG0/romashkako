@@ -10,6 +10,7 @@ import com.soigo.romashkako.repository.ProductRepository;
 import com.soigo.romashkako.repository.specification.ProductSpecification;
 import com.soigo.romashkako.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Map;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
@@ -95,6 +96,7 @@ public class ProductServiceImpl implements ProductService {
         long result = oldCount + count;
 
         if (result < 0L) {
+            log.error("Ошибка при изменение count в product, старое значение: {}, новое значение: {}", oldCount, result);
             throw new ValueLessThanZeroException(
                     "Значение кол-во продукта не может быть меньше 0",
                     Map.of(
@@ -105,7 +107,17 @@ public class ProductServiceImpl implements ProductService {
         }
 
         product.setCount(result);
+        updateAvailability(product);
         productRepository.save(product);
+    }
+
+    private void updateAvailability(Product product) {
+        long count = product.getCount();
+        if (count > 0L) {
+            product.setAvailability(Availability.IN_STOCK);
+        } else {
+            product.setAvailability(Availability.OUT_OF_STOCK);
+        }
     }
 
 
