@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+import static com.soigo.romashkako.utils.SortUtil.createSort;
+
 @Service
 @RequiredArgsConstructor
 public class SaleServiceImpl implements SaleService {
@@ -98,13 +100,5 @@ public class SaleServiceImpl implements SaleService {
         if (!saleRepository.existsById(id)) {
             throw new EntityNotFoundException(String.format("Продажа товара с id %s не найден", id));
         }
-    }
-
-    private Sort createSort(String sortBy, Boolean reverse) {
-        Sort sort = (sortBy != null) ? Sort.by(sortBy) : Sort.unsorted();
-        if (reverse) {
-            sort = sort.reverse();
-        }
-        return sort;
     }
 }

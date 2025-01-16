@@ -20,6 +20,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Map;
+
+import static com.soigo.romashkako.utils.SortUtil.createSort;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -153,13 +156,5 @@ public class ProductServiceImpl implements ProductService {
         if (product.getAvailability() != null) {
             productFound.setAvailability(product.getAvailability());
         }
-    }
-
-    private Sort createSort(String sortBy, Boolean reverse) {
-        Sort sort = (sortBy != null) ? Sort.by(sortBy) : Sort.unsorted();
-        if (reverse) {
-            sort = sort.reverse();
-        }
-        return sort;
     }
 }

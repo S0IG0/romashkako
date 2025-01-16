@@ -16,6 +16,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import static com.soigo.romashkako.utils.SortUtil.createSort;
+
 @Service
 @RequiredArgsConstructor
 public class DeliveryServiceImpl implements DeliveryService {
@@ -91,13 +93,5 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (!deliveryRepository.existsById(id)) {
             throw new EntityNotFoundException(String.format("Поставка товара с id %s не найден", id));
         }
-    }
-
-    private Sort createSort(String sortBy, Boolean reverse) {
-        Sort sort = (sortBy != null) ? Sort.by(sortBy) : Sort.unsorted();
-        if (reverse) {
-            sort = sort.reverse();
-        }
-        return sort;
     }
 }
