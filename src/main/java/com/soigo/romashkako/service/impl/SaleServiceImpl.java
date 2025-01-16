@@ -16,6 +16,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class SaleServiceImpl implements SaleService {
@@ -82,7 +84,14 @@ public class SaleServiceImpl implements SaleService {
                 sale.getProduct().getId(),
                 -sale.getCount()
         );
+        setSaleCost(sale.getProduct().getId(), sale);
         return saleRepository.save(sale);
+    }
+
+    private void setSaleCost(Long productId, Sale sale) {
+        BigDecimal price = productService.findById(productId).getPrice();
+        BigDecimal cost = price.multiply(BigDecimal.valueOf(sale.getCount()));
+        sale.setCost(cost);
     }
 
     private void checkSaleExists(Long id) {

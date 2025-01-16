@@ -7,6 +7,7 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 // Продажа товара
@@ -27,6 +28,9 @@ public class Sale {
     @ManyToOne
     @JoinColumn(nullable = false)
     private Product product;
+
+    @Column(nullable = false)
+    private BigDecimal cost;
 
     @CreationTimestamp
     @Column(updatable = false, nullable = false)

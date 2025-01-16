@@ -1,0 +1,2 @@
+
+ALTER TABLE IF EXISTS sale RENAME COLUMN price TO cost;
