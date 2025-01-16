@@ -25,6 +25,7 @@ import java.util.Map;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
+
     private final Availability defaultAvailability = Availability.OUT_OF_STOCK;
     private final BigDecimal defaultPrice = BigDecimal.ZERO;
 
@@ -120,6 +121,10 @@ public class ProductServiceImpl implements ProductService {
         }
         if (product.getPrice() == null) {
             product.setPrice(defaultPrice);
+        }
+        if (product.getCount() == null) {
+            long defaultCount = 0L;
+            product.setCount(defaultCount);
         }
     }
 
