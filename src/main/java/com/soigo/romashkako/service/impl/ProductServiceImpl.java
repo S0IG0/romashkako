@@ -48,14 +48,14 @@ public class ProductServiceImpl implements ProductService {
         Sort sort = createSort(sortBy, reverse);
         Availability foundAvailability = availability != null ? Availability.valueOf(availability) : null;
 
-        Specification<Product> spec = ProductSpecification.hasNameAndPriceAndAvailability(
+        Specification<Product> spec = ProductSpecification.hasNameAndPriceAndAvailabilityAndDeletedIsFalse(
                 name,
                 minPrice,
                 maxPrice,
                 foundAvailability
         );
 
-        return productRepository.findAllByDeletedFalse(
+        return productRepository.findAll(
                 spec,
                 PageRequest.of(
                         page,

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductSpecification {
-    public static Specification<Product> hasNameAndPriceAndAvailability(
+    public static Specification<Product> hasNameAndPriceAndAvailabilityAndDeletedIsFalse(
             String name,
             BigDecimal minPrice,
             BigDecimal maxPrice,
@@ -35,6 +35,8 @@ public class ProductSpecification {
             if (availability != null) {
                 predicates.add(criteriaBuilder.equal(root.get("availability"), availability));
             }
+
+            predicates.add(criteriaBuilder.equal(root.get("deleted"), false));
 
             return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
         };
