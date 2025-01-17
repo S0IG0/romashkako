@@ -32,4 +32,8 @@ public class Product {
     @Column(nullable = false)
     @ColumnDefault("0")
     private Long count;
+
+    @Column(nullable = false)
+    @ColumnDefault("false")
+    private Boolean deleted;
 }

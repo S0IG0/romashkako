@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
                 foundAvailability
         );
 
-        return productRepository.findAll(
+        return productRepository.findAllByDeletedFalse(
                 spec,
                 PageRequest.of(
                         page,
@@ -66,8 +67,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product findById(Long id) {
-        checkProductExists(id);
-        return productRepository.findById(id).orElseThrow();
+        return productRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException(String.format("Продукт с id %s не найден", id))
+        );
     }
 
     @Override
@@ -89,9 +91,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void delete(Long id) {
         checkProductExists(id);
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id).orElseThrow();
+        product.setDeleted(true);
+        productRepository.save(product);
     }
 
+    @Transactional
     @Override
     public void adjustCount(Long id, Long count) {
         Product product = findById(id);
@@ -125,8 +130,8 @@ public class ProductServiceImpl implements ProductService {
 
 
     private void checkProductExists(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new EntityNotFoundException(String.format("Продукт с id %s не найден", id));
+        if (!productRepository.existsByIdAndDeletedIsFalse(id)) {
+            throw new EntityNotFoundException(String.format("Продукт с id %s не найден или помечен как удален", id));
         }
     }
 

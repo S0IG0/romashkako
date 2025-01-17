@@ -16,4 +16,5 @@ public class ProductResponse {
     private BigDecimal price;
     private String availability;
     private Long count;
+    private Boolean deleted;
 }
