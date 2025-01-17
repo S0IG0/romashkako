@@ -99,7 +99,8 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Override
     public void adjustCount(Long id, Long count) {
-        Product product = findById(id);
+        checkProductExists(id);
+        Product product = productRepository.findById(id).orElseThrow();
         Long oldCount = product.getCount();
         long result = oldCount + count;
 
