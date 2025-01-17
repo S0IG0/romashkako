@@ -137,9 +137,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void setDefaultValues(Product product) {
-        if (product.getAvailability() == null) {
-            product.setAvailability(defaultAvailability);
-        }
+        product.setAvailability(defaultAvailability);
+        product.setDeleted(false);
         if (product.getPrice() == null) {
             product.setPrice(defaultPrice);
         }
