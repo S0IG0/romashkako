@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -31,13 +32,20 @@ public class SaleServiceImpl implements SaleService {
     public Page<Sale> findAll(
             String name,
             Long productId,
+            BigDecimal minCost,
+            BigDecimal maxCost,
             Integer page,
             Integer size,
             String sortBy,
             Boolean reverse
     ) {
         Sort sort = createSort(sortBy, reverse);
-        Specification<Sale> spec = SaleSpecification.hasNameAndProductId(name, productId);
+        Specification<Sale> spec = SaleSpecification.hasNameAndProductId(
+                name,
+                productId,
+                minCost,
+                maxCost
+        );
         return saleRepository.findAll(
                 spec,
                 PageRequest.of(
@@ -54,6 +62,7 @@ public class SaleServiceImpl implements SaleService {
         return saleRepository.findById(id).orElseThrow();
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
         checkSaleExists(id);
@@ -78,6 +87,7 @@ public class SaleServiceImpl implements SaleService {
         return saleRepository.save(saleOld);
     }
 
+    @Transactional
     @Override
     public Sale create(SaleCreateRequest saleCreateRequest) {
         Sale sale = modelMapper.map(saleCreateRequest, Sale.class);
