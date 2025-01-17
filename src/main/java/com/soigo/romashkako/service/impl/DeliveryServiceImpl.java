@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.soigo.romashkako.utils.SortUtil.createSort;
 
@@ -46,6 +47,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         );
     }
 
+    @Transactional
     @Override
     public Delivery create(DeliveryCreateRequest deliveryCreateRequest) {
         Delivery delivery = modelMapper.map(deliveryCreateRequest, Delivery.class);
@@ -70,6 +72,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return deliveryRepository.save(deliveryOld);
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
         checkDeliveryExists(id);
