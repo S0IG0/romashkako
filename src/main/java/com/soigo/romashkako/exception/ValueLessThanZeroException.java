@@ -5,10 +5,8 @@ import lombok.Getter;
 import java.util.Map;
 
 @Getter
-public class ValueLessThanZeroException extends RuntimeException {
-    private final Map<String, String> details;
+public class ValueLessThanZeroException extends DetailsException {
     public ValueLessThanZeroException(String message, Map<String, String> details) {
-        super(message);
-        this.details = details;
+        super(message, details);
     }
 }

@@ -1,8 +1,8 @@
 package com.soigo.romashkako.handler;
 
 import com.soigo.romashkako.dto.response.ErrorResponse;
+import com.soigo.romashkako.exception.DetailsException;
 import com.soigo.romashkako.exception.EntityNotFoundException;
-import com.soigo.romashkako.exception.ValueLessThanZeroException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -66,8 +66,8 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(ValueLessThanZeroException.class)
-    public ResponseEntity<ErrorResponse> handleValueLessThanZeroException(ValueLessThanZeroException ex, HttpServletRequest request) {
+    @ExceptionHandler(DetailsException.class)
+    public ResponseEntity<ErrorResponse> handleDetailsException(DetailsException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 ErrorResponse
                         .builder()

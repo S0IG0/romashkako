@@ -2,6 +2,7 @@ package com.soigo.romashkako.service.impl;
 
 import com.soigo.romashkako.dto.request.SaleCreateRequest;
 import com.soigo.romashkako.dto.request.SaleUpdateRequest;
+import com.soigo.romashkako.exception.DetailsException;
 import com.soigo.romashkako.exception.EntityNotFoundException;
 import com.soigo.romashkako.model.Sale;
 import com.soigo.romashkako.repository.SaleRepository;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import static com.soigo.romashkako.utils.SortUtil.createSort;
 
@@ -67,11 +69,21 @@ public class SaleServiceImpl implements SaleService {
     public void delete(Long id) {
         checkSaleExists(id);
         Sale saleFound = saleRepository.findById(id).orElseThrow();
-        // Добавляем у продукта кол-во
-        productService.adjustCount(
-                saleFound.getProduct().getId(),
-                saleFound.getCount()
-        );
+
+        try {
+            // Добавляем у продукта кол-во
+            productService.adjustCount(
+                    saleFound.getProduct().getId(),
+                    saleFound.getCount()
+            );
+        } catch (EntityNotFoundException e) {
+            throw new DetailsException(
+                    "Удаление продажи для удаленного или несуществующего товара запрещено",
+                    Map.of("product", e.getMessage())
+            );
+        }
+
+        saleRepository.delete(saleFound);
     }
 
     @Override
@@ -91,11 +103,21 @@ public class SaleServiceImpl implements SaleService {
     @Override
     public Sale create(SaleCreateRequest saleCreateRequest) {
         Sale sale = modelMapper.map(saleCreateRequest, Sale.class);
-        // Убавляем у продукта кол-во
-        productService.adjustCount(
-                sale.getProduct().getId(),
-                -sale.getCount()
-        );
+
+        try {
+            // Убавляем у продукта кол-во
+            productService.adjustCount(
+                    sale.getProduct().getId(),
+                    -sale.getCount()
+            );
+        } catch (EntityNotFoundException e) {
+            throw new DetailsException(
+                    "Создание продажи для удаленного или несуществующего товара запрещено",
+                    Map.of("product", e.getMessage())
+            );
+        }
+
+
         setSaleCost(sale.getProduct().getId(), sale);
         return saleRepository.save(sale);
     }

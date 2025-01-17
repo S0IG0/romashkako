@@ -3,6 +3,7 @@ package com.soigo.romashkako.service.impl;
 import com.soigo.romashkako.dto.request.DeliveryCreateRequest;
 import com.soigo.romashkako.dto.request.DeliveryUpdateRequest;
 import com.soigo.romashkako.exception.EntityNotFoundException;
+import com.soigo.romashkako.exception.NotSupportChange;
 import com.soigo.romashkako.model.Delivery;
 import com.soigo.romashkako.repository.DeliveryRepository;
 import com.soigo.romashkako.repository.specification.DeliverySpecification;
@@ -16,6 +17,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 import static com.soigo.romashkako.utils.SortUtil.createSort;
 
@@ -51,11 +54,22 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     public Delivery create(DeliveryCreateRequest deliveryCreateRequest) {
         Delivery delivery = modelMapper.map(deliveryCreateRequest, Delivery.class);
-        // Добавляем к продукту кол-во
-        productService.adjustCount(
-                delivery.getProduct().getId(),
-                delivery.getCount()
-        );
+
+        try {
+            // Добавляем к продукту кол-во
+            productService.adjustCount(
+                    delivery.getProduct().getId(),
+                    delivery.getCount()
+            );
+        } catch (EntityNotFoundException e) {
+            throw new NotSupportChange(
+                    "Создание поставки для удаленного или несуществующего товара запрещено",
+                    Map.of(
+                            "product", e.getMessage()
+                    )
+            );
+        }
+
         return deliveryRepository.save(delivery);
     }
 
@@ -77,11 +91,22 @@ public class DeliveryServiceImpl implements DeliveryService {
     public void delete(Long id) {
         checkDeliveryExists(id);
         Delivery deliveryFound = deliveryRepository.findById(id).orElseThrow();
-        // Убавляем у продукта кол-во
-        productService.adjustCount(
-                deliveryFound.getProduct().getId(),
-                -deliveryFound.getCount()
-        );
+
+        try {
+            // Убавляем у продукта кол-во
+            productService.adjustCount(
+                    deliveryFound.getProduct().getId(),
+                    -deliveryFound.getCount()
+            );
+        } catch (EntityNotFoundException e) {
+            throw new NotSupportChange(
+                    "Удаление поставки для удаленного или несуществующего товара запрещено",
+                    Map.of(
+                            "product", e.getMessage()
+                    )
+            );
+        }
+
         deliveryRepository.deleteById(id);
     }
 
