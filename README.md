@@ -4,27 +4,42 @@
 
 - **URL:** `/product`
 - **Метод:** `GET`
-- **Описание:** Возвращает список всех продуктов.
+- **Описание:** Возвращает список всех продуктов с возможностью фильтрации, сортировки и пагинации.
+- **Параметры:**
+    - `name` (Query Param, optional): Фильтр по названию продукта.
+    - `minPrice` (Query Param, optional): Минимальная цена продукта.
+    - `maxPrice` (Query Param, optional): Максимальная цена продукта.
+    - `availability` (Query Param, optional): Фильтр по наличию продукта (`IN_STOCK` или `OUT_OF_STOCK`).
+    - `sortBy` (Query Param, optional): Поле для сортировки (`name` или `price`).
+    - `page` (Query Param, default: `0`): Номер страницы.
+    - `size` (Query Param, default: `10`): Размер страницы (от 1 до 100).
+    - `reverse` (Query Param, default: `false`): Обратный порядок сортировки (`true` или `false`).
 - **Ответ:**
     - **Статус:** `200 OK`
     - **Тело ответа:**
       ```json
-      [
-        {
-          "id": 1,
-          "name": "Product 1",
-          "description": "Description of Product 1",
-          "price": 100.00,
-          "availability": "IN_STOCK"
-        },
-        {
-          "id": 2,
-          "name": "Product 2",
-          "description": "Description of Product 2",
-          "price": 200.00,
-          "availability": "OUT_OF_STOCK"
-        }
-      ]
+      {
+        "content": [
+          {
+            "id": 1,
+            "name": "Product 1",
+            "description": "Description of Product 1",
+            "price": 100.00,
+            "availability": "IN_STOCK"
+          },
+          {
+            "id": 2,
+            "name": "Product 2",
+            "description": "Description of Product 2",
+            "price": 200.00,
+            "availability": "OUT_OF_STOCK"
+          }
+        ],
+        "totalElements": 2,
+        "totalPages": 1,
+        "number": 0,
+        "size": 10
+      }
       ```
 
 ### 2. Получение продукта по ID
@@ -130,7 +145,22 @@
   }
   ```
 
-### 2. Продукт не найден
+### 2. Ошибка валидации параметров запроса
+
+- **Статус:** `400 Bad Request`
+- **Тело ответа:**
+  ```json
+  {
+    "uri": "/product",
+    "message": "Ошибка валидации параметров запроса",
+    "details": {
+      "minPrice": "Значение должно быть больше или равно 0.00",
+      "sortBy": "Значение должно быть 'name' или 'price'"
+    }
+  }
+  ```
+
+### 3. Продукт не найден
 
 - **Статус:** `404 Not Found`
 - **Тело ответа:**
@@ -142,7 +172,7 @@
   }
   ```
 
-### 3. Ошибка парсинга JSON
+### 4. Ошибка парсинга JSON
 
 - **Статус:** `400 Bad Request`
 - **Тело ответа:**
@@ -154,7 +184,7 @@
   }
   ```
 
-### 4. Неподдерживаемый тип медиа
+### 5. Неподдерживаемый тип медиа
 
 - **Статус:** `415 Unsupported Media Type`
 - **Тело ответа:**
@@ -171,6 +201,7 @@
 ### Пример создания продукта
 
 **Запрос:**
+
 ```http
 POST /product
 Content-Type: application/json
@@ -184,6 +215,7 @@ Content-Type: application/json
 ```
 
 **Ответ:**
+
 ```http
 HTTP/1.1 201 Created
 Content-Type: application/json
@@ -200,6 +232,7 @@ Content-Type: application/json
 ### Пример обновления продукта
 
 **Запрос:**
+
 ```http
 PATCH /product/1
 Content-Type: application/json
@@ -211,6 +244,7 @@ Content-Type: application/json
 ```
 
 **Ответ:**
+
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
